@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<!-- NOTE: If you're working offline, you might have to change the DOCTYPE to the following:
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">-->
+<hibernate-configuration>
+ <session-factory name="">
+  <mapping class="com.lytx.finance.vo.Role"/>
+  <mapping class="com.lytx.finance.vo.User"/>
+  <class-cache
+   class="com.lytx.finance.vo.Role"
+   include="non-lazy" usage="read-only"/>
+  <class-cache
+   class="com.lytx.finance.vo.User"
+   include="non-lazy" usage="transactional"/>
+  <collection-cache
+   collection="com.lytx.finance.vo.User.roles" usage="transactional"/>
+ </session-factory>
+</hibernate-configuration>

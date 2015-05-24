@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd"
+    default-lazy-init="true">
+    
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/> 
+    
+    <bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator" />
+
+    
+    <bean id="sessionFactory"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
+        destroy-method="destroy">
+        <property name="dataSource" ref="hikariCPDataSource" />
+        <property name="configLocation">
+            <value> classpath:hibernate.cfg.xml </value>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${project.hibernateDialect}</prop>
+                <!-- Booleans can be easily used in expressions by 
+                     declaring HQL query substitutions in Hibernate configuration -->
+                <prop key="hibernate.query.substitutions">true 'Y', false 'N'</prop>
+                <!-- http://ehcache.org/documentation/integrations/hibernate -->
+                <!-- http://www.tutorialspoint.com/hibernate/hibernate_caching.htm -->
+                <prop key="hibernate.cache.use_second_level_cache">true</prop>
+                <!-- org.hibernate.cache.ehcache.EhCacheRegionFactory -->
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
+                <!-- hibernate只会缓存使用load()方法获得的单个持久化对象，如果想缓存使用findall()、 list()、Iterator()、createCriteria()、createQuery()
+                                等方法获得的数据结果集的话，就需要设置hibernate.cache.use_query_cache true  -->
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <!-- <prop key="hibernate.cache.provider_configuration_file_resource_path">/ehcache.xml</prop> -->
+                <!-- Hibernate Search index directory
+                <prop key="hibernate.search.default.indexBase">${app.search.index.basedir}</prop> -->
+            </props>
+        </property>
+    </bean> 
+    
+    <bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <!-- Activates scanning of @Autowired 
+    <context:annotation-config />
+
+    Activates scanning of @Repository -->
+    <context:component-scan
+        base-package="com.lytx.finance.dao.impl" />
+	
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+	    <property name="maximumPoolSize" value="10" />
+	    <property name="minimumPoolSize" value="10" />
+	    <property name="dataSourceClassName" value="${project.jdbc.dataSourceClassName}" />
+	     <property name="connectionTestQuery" value="SELECT 1" />
+	    <property name="dataSourceProperties">
+		    <props>
+			    <prop key="url">${project.jdbc.url}</prop>
+			    <prop key="user">${project.jdbc.username}</prop>
+			    <prop key="password">${project.jdbc.password}</prop>
+			    <!-- mysql special config from https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration -->
+                <prop key="cachePrepStmts">true</prop>
+                <prop key="prepStmtCacheSize">250</prop>
+                <prop key="prepStmtCacheSqlLimit">2048</prop>
+                <prop key="useServerPrepStmts">true</prop>        
+		    </props>
+	    </property>
+	    <property name="poolName" value="springHikariCP" />
+    </bean>
+
+    <bean id="hikariCPDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="shutdown">
+        <constructor-arg ref="hikariConfig" />
+    </bean>   
+	  
+</beans>

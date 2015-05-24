@@ -1,0 +1,171 @@
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3.0.xsd">
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:**/spring-*.xml
+			/WEB-INF/applicationContext*.xml
+		</param-value>
+	</context-param>
+
+	<!-- <context-param> <param-name>spring.profiles.default</param-name> <param-value>production</param-value> 
+		</context-param> -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>hibernateFilter</filter-name>
+		<filter-class>
+			org.springframework.orm.hibernate4.support.OpenSessionInViewFilter
+		</filter-class>
+		<init-param>
+			<param-name>sessionFactoryBeanName</param-name>
+			<param-value>sessionFactory</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>hibernateFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- <filter> <filter-name>openEntityManagerInViewFilter</filter-name> <filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class> 
+		</filter> <filter-mapping> <filter-name>openEntityManagerInViewFilter</filter-name> 
+		<url-pattern>/*</url-pattern> </filter-mapping> -->
+
+	<filter>
+		<filter-name>shiroFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<init-param>
+			<param-name>targetFilterLifecycle</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>shiroFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+
+	<filter>
+		<!-- simon统计filter -->
+		<filter-name>simon-filter</filter-name>
+		<filter-class>org.javasimon.javaee.SimonServletFilter</filter-class>
+		<!-- optional -->
+		<init-param>
+			<param-name>prefix</param-name>
+			<param-value>com.cloud.web</param-value>
+		</init-param>
+		<!-- optional basic plain-text console -->
+		<init-param>
+			<param-name>console-path</param-name>
+			<param-value>/simon-filter</param-value>
+		</init-param>
+		<!-- optional, 需要报告的阀值 -->
+		<init-param>
+			<param-name>report-threshold-ms</param-name>
+			<param-value>1000</param-value>
+		</init-param>
+		<!-- optional, 告警 - 显示到标准输出，可以自己定制报告 -->
+		<init-param>
+			<param-name>request-reporter-class</param-name>
+			<param-value>org.javasimon.javaee.reqreporter.StandardRequestReporter</param-value>
+		</init-param>
+		<!-- optional, StopwatchSource instance -->
+		<init-param>
+			<param-name>stopwatch-source-props</param-name>
+			<param-value>includeHttpMethodName=ALWAYS</param-value>
+		</init-param>
+	</filter>
+
+	<!-- Web Console 显示Web统计信息，访问/simon-console 查看 -->
+	<filter>
+		<filter-name>simon-console-filter</filter-name>
+		<filter-class>org.javasimon.console.SimonConsoleFilter</filter-class>
+		<init-param>
+			<param-name>url-prefix</param-name>
+			<param-value>/simon-console</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- 大部分情况web查看console不是需要监控的，注意filter顺序 -->
+	<filter-mapping>
+		<filter-name>simon-console-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>simon-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<!-- spring loader -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<!-- clean up interspectors -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+	<!-- spring new scope for web: request, session, global session -->
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/WEB-INF/views/error/500.jsp</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/views/error/500.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>400</error-code>
+		<location>/index.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/WEB-INF/views/error/403.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/views/error/404.jsp</location>
+	</error-page>
+
+	<jsp-config>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<trim-directive-whitespaces>true</trim-directive-whitespaces>
+		</jsp-property-group>
+	</jsp-config>
+
+	<session-config>
+		<session-timeout>20</session-timeout>
+		<cookie-config>
+			<http-only>true</http-only>
+			<!--<secure>true</secure> -->
+		</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
+</web-app>
