@@ -30,8 +30,8 @@ For insert whitespace before closing empty end-tags, select Indent using psaces,
  - select use modifier 'final' where possible
  - select convert funtional interface instances with use lambda where possible
 - In Member Accesses:
- - select user 'this' qualifier for field accesses
- - select user 'this' qualifier for method accesses
+ ~~- select user 'this' qualifier for field accesses~~
+ ~~- select user 'this' qualifier for method accesses~~
  - select qualify field access and qualify method access
 - In Unnecessary Code
  - select Remove unused imports
